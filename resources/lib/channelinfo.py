@@ -131,13 +131,10 @@ class ChannelInfo(object):
         item = kodifactory.list_item(name, description)
         item.setArt({'thumb': self.icon, 'icon': self.icon})
 
-        # http://mirrors.kodi.tv/docs/python-docs/14.x-helix/xbmcgui.html#ListItem-setInfo
-        item.setInfo("video", {"Title": name,
-                               # "Count": self.sortOrderPerCountry,
-                               # "TrackNumber": self.sortOrder,
-                               "Genre": LanguageHelper.get_full_language(self.language),
-                               # "Tagline": description,
-                               "Plot": description})
+        info_tag = item.getVideoInfoTag()
+        info_tag.setTitle(name)
+        info_tag.setGenres([LanguageHelper.get_full_language(self.language)])
+        info_tag.setPlot(description)
 
         if self.poster is not None:
             self.poster = self.__get_image_path(self.poster)

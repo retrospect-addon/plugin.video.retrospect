@@ -3,14 +3,12 @@
 import datetime
 from resources.lib import chn_class, mediatype
 from resources.lib.mediaitem import MediaItem
-from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.logger import Logger
-from resources.lib.parserdata import ParserData
 from resources.lib.regexer import Regexer
-from resources.lib.streams.m3u8 import M3u8
+from resources.lib.streams.inputstream import InputStream
 from resources.lib.urihandler import UriHandler
 
 
@@ -48,7 +46,7 @@ class Channel(chn_class.Channel):
                               parser=video_item_regex, creator=self.create_video_item)
 
         self._add_data_parser("https://[^/]*.cloudfront.net/live/", updater=self.update_live_urls,
-                              match_type=ParserData.MatchRegex)
+                              match_type="Regex")
 
         self._add_data_parser("*", preprocessor=self.add_live_streams,
                               parser=video_item_regex, creator=self.create_video_item,
@@ -134,7 +132,7 @@ class Channel(chn_class.Channel):
         """
 
         item = chn_class.Channel.create_video_item(self, result_set)
-        if item is None:
+        if item is None or isinstance(item, list):
             return item
 
         time_stamp = DateHelper.get_date_from_string(result_set["date"], "%d-%m-%Y %H:%M")
@@ -201,14 +199,7 @@ class Channel(chn_class.Channel):
 
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
-        if AddonSettings.use_adaptive_stream_add_on():
-            stream = item.add_stream(item.url, 0)
-            M3u8.set_input_stream_addon_input(stream)
-            item.complete = True
-        else:
-
-            for s, b in M3u8.get_streams_from_m3u8(item.url):
-                item.complete = True
-                item.add_stream(s, b)
-            item.complete = True
+        stream = item.add_stream(item.url, 0)
+        InputStream().set_input_stream_addon_input(stream)
+        item.complete = True
         return item

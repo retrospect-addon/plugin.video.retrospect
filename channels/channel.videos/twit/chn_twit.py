@@ -7,7 +7,7 @@ from resources.lib.regexer import Regexer
 from resources.lib.helpers.datehelper import DateHelper
 
 from resources.lib.logger import Logger
-from resources.lib.streams.m3u8 import M3u8
+from resources.lib.streams.inputstream import InputStream
 from resources.lib.urihandler import UriHandler
 from resources.lib.parserdata import ParserData
 
@@ -215,5 +215,7 @@ class Channel(chn_class.Channel):
     def update_m3u8(self, item):
         # http://iphone-streaming.ustream.tv/uhls/1524/streams/live/iphone/playlist.m3u8
         part = item.create_new_empty_media_part()
-        item.complete = M3u8.update_part_with_m3u8_streams(part, item.url, encrypted=False)
+        stream = part.add_stream(item.url)
+        InputStream().set_input_stream_addon_input(stream)
+        item.complete = True
         return item

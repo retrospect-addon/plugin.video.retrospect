@@ -9,7 +9,8 @@ from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
 from resources.lib.parserdata import ParserData
-from resources.lib.streams.m3u8 import M3u8
+from resources.lib.streams.inputstream import InputStream
+from resources.lib.streams.inputstream import InputStreamAdaptiveDrmConfig
 from resources.lib.urihandler import UriHandler
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.logger import Logger
@@ -427,8 +428,7 @@ class Channel(chn_class.Channel):
         item_id = result_set["id"]
         if program_type == "programme":
             url = self.__get_video_url(item_id)
-            item = MediaItem(title, url)
-            item.type = 'video'
+            item = MediaItem(title, url, media_type=mediatype.VIDEO)
         else:
             use_old_series_api = False
             if use_old_series_api:
@@ -754,7 +754,9 @@ class Channel(chn_class.Channel):
             url = stream_info["url"]
             stream_type = stream_info["format"]
             if stream_type == "HLS":
-                item.complete = M3u8.update_part_with_m3u8_streams(item, url)
+                stream = item.add_stream(url)
+                InputStream().set_input_stream_addon_input(stream)
+                item.complete = True
             else:
                 Logger.warning("Found unknow stream type: %s", stream_type)
 
@@ -793,11 +795,9 @@ class Channel(chn_class.Channel):
         url = video_info["url"]
         # Is it encrypted? encrypted = video_info["encrypted"]
 
-        # Adaptive add-on does not work with audio only
-        for s, b in M3u8.get_streams_from_m3u8(url):
-            item.complete = True
-            item.add_stream(s, b)
-
+        stream = item.add_stream(url, 0)
+        InputStream().set_input_stream_addon_input(stream)
+        item.complete = True
         return item
 
     def __update_live_video(self, item, manifest):
@@ -811,19 +811,17 @@ class Channel(chn_class.Channel):
                 Logger.error("Cannot playback encrypted item without inputstream.adaptive with encryption support")
                 return item
             stream = item.add_stream(url, 0)
-            key = M3u8.get_license_key("", key_type="R")
-            M3u8.set_input_stream_addon_input(stream, license_key=key)
+            drm_config = InputStreamAdaptiveDrmConfig(
+                license_type="com.widevine.alpha",
+                server_url="",
+                key_type="R",
+            )
+            InputStream().set_input_stream_addon_input(stream, drm_config=drm_config)
             item.complete = True
         else:
-            use_adaptive = AddonSettings.use_adaptive_stream_add_on(with_encryption=False)
-            if use_adaptive:
-                stream = item.add_stream(url, 0)
-                M3u8.set_input_stream_addon_input(stream)
-                item.complete = True
-            else:
-                for s, b in M3u8.get_streams_from_m3u8(url):
-                    item.complete = True
-                    item.add_stream(s, b)
+            stream = item.add_stream(url, 0)
+            InputStream().set_input_stream_addon_input(stream)
+            item.complete = True
 
         return item
 
