@@ -42,19 +42,19 @@ jobs:
           # Kodi Matrix on Windows uses a bundled Python 3.8, but we test 3.11 also to be sure.
           - os: windows-latest
             python-version: 3.8
-          - os: windows-latest
+          - os: windows-2022
             python-version: 3.11
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install -r requirements.txt
 
 #      - name: Set Environment Variables (Linux)
 #        if: ${{ runner.os == 'Linux' }}
@@ -78,5 +78,4 @@ jobs:
           KODI_HOME: ${{ github.workspace }}/tests/home
           PYTHONPATH: ${{ github.workspace }}/kodi.emulator.ascii
         run: |
-          echo "::debug::$GITHUB_ENV"
-          pytest -v --color=yes
+          python -m pytest -v --color=yes
