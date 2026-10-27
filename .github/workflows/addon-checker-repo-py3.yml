@@ -27,4 +27,4 @@ jobs:
           python -m pip install kodi-addon-checker
       - name: Run kodi-addon-checker
         run: |
-          python -m kodi-addon-checker --branch=${{ matrix.kodi-branch }} .
+          kodi-addon-checker --branch=${{ matrix.kodi-branch }} .
