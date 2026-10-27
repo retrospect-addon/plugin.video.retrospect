@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
-"Report-Msgid-Bugs-To: translations@kodi.tv\n"
+"Report-Msgid-Bugs-To: https://github.com/retrospect-addon/plugin.video.retrospect/issues\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2025-01-08 18:27+0000\n"
 "Last-Translator: Smarttube01 da gamer <smarttubed@gmail.com>\n"
@@ -1180,6 +1180,10 @@ msgstr "Toon content met toegankelijkheidsfuncties"
 msgctxt "#30588"
 msgid "This stream cannot be played due to geographical restrictions."
 msgstr "De stream kan niet worden afgespeeld als gevolg van regionale restricties."
+
+msgctxt "#30589"
+msgid "Live streams"
+msgstr ""
 
 # empty strings from id 30584 to 30589
 msgctxt "#30590"
