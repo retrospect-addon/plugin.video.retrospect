@@ -992,7 +992,7 @@ class Channel:
         :param parser:                The parser (regex or json).
 
         :param creator:               The creator called with the results from the parser
-        :param updater:               The updater called for updating a item
+        :param updater:               The updater called for updating an item
         :param postprocessor:         The post-processor called
         :param json:                  Indication whether the parsers are JSON (True) or Regex (False)
         :param match_type:            The type of matching to use

@@ -65,7 +65,6 @@ class MediaItem:
     LabelTrackNumber = "TrackNumber"
     LabelDuration = "Duration"
     LabelTvShowTitle = "TVShowTitle"
-    ExpiresAt = LanguageHelper.get_localized_string(LanguageHelper.ExpiresAt)
 
     #noinspection PyShadowingBuiltins
     def __init__(self, title, url, media_type=mediatype.FOLDER, depickle=False, tv_show_title=None):
@@ -846,8 +845,10 @@ class MediaItem:
         title = ""
 
         if self.__expires_datetime is not None:
-            expires = "{}: {}".format(MediaItem.ExpiresAt, self.__expires_datetime.strftime("%Y-%m-%d %H:%M"))
-            description_prefix.append(("gold", expires))
+            description_prefix.append(
+                ("gold", f"{LanguageHelper.get_localized_string(LanguageHelper.ExpiresAt)}: "
+                         f"{self.__expires_datetime.strftime('%Y-%m-%d %H:%M')}")
+            )
 
         if self.isDrmProtected:
             title_postfix.append(("gold", drm_lock))
