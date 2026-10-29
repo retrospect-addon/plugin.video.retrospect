@@ -53,10 +53,16 @@ class RSCHelper:
                 # string with length
                 hex_length, raw = raw[1:].split(",", 1)
                 length = int(hex_length, 16)
-                text_value = raw[0:length]
-                remainder = raw[length:]
+
+                raw_bytes = raw.encode("utf-8")
+                text_value = raw_bytes[:length].decode("utf-8")
+                remainder = raw_bytes[length:].decode("utf-8")
+
                 self._records[key] = text_value
-                return self._parse_line(remainder)
+
+                if remainder:
+                    self._parse_line(remainder)
+                return
 
             parsed = json.loads(raw)
             self._records[key] = parsed
@@ -68,39 +74,65 @@ class RSCHelper:
             # Ignore non-JSON lines
             pass
 
-    def _normalize(self, value: Any) -> Any:
-        if value == "$undefined":
-            return None
-
-        if isinstance(value, str) and value.startswith("$S"):
-            return {"__symbol__": value[2:]}
-
-        return value
-
     def _resolve(self, value: Any, seen: Optional[Set[str]] = None) -> Any:
         if seen is None:
             seen = set()
 
         if isinstance(value, str):
-            if value.startswith("$L"):
+            if value == "$":
+                return "$"
+
+            if value == "$undefined":
+                return None
+
+            if value.startswith("$S"):
+                return {"__symbol__": value[2:]}
+
+            if value.startswith("$Q"):
                 key = value[2:]
                 if key in seen:
                     return "[Circular]"
-                seen.add(key)
-                return self._resolve(self._records.get(key), seen)
-
-            if value.startswith("$@"):
                 return {
-                    "__promise__": self._resolve(value[2:], seen)
+                    "__map__": self._resolve(
+                        self._records.get(key),
+                        seen | {key}
+                    )
                 }
 
-            return self._normalize(value)
+            if value.startswith("$@"):
+                key = value[2:]
+                if key in seen:
+                    return "[Circular]"
+                return {
+                    "__promise__": self._resolve(
+                        self._records.get(key),
+                        seen | {key}
+                    )
+                }
+
+            if value.startswith("$L"):
+                key = value[2:]
+            elif value.startswith("$"):
+                key = value[1:]
+            else:
+                return value
+
+            if key in seen:
+                return "[Circular]"
+
+            return self._resolve(
+                self._records.get(key),
+                seen | {key}
+            )
 
         if isinstance(value, list):
             return [self._resolve(v, seen.copy()) for v in value]
 
         if isinstance(value, dict):
-            return {k: self._resolve(v, seen.copy()) for k, v in value.items()}
+            return {
+                k: self._resolve(v, seen.copy())
+                for k, v in value.items()
+            }
 
         return value
 

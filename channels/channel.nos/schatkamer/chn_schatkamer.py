@@ -38,7 +38,7 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "de-schatkamer-image.jpg"
 
-        self.mainListUri = "https://schatkamer.beeldengeluid.nl/"
+        self.mainListUri = "https://schatkamer.beeldengeluid.nl/?_rsc"
         self.baseUrl = "https://schatkamer.beeldengeluid.nl/"
 
         # We need React Server Components
