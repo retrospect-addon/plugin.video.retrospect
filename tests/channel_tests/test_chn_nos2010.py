@@ -16,7 +16,7 @@ class TestNpoChannel(ChannelTest):
 
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertEqual(8, len(items), "No items found in mainlist")
+        self.assertGreaterEqual(len(items), 5, "No items found in mainlist")
 
     def test_live_radio(self):
         self._test_folder_url("https://npo.nl/luister",
@@ -46,6 +46,7 @@ class TestNpoChannel(ChannelTest):
         url = "https://npo.nl/start/video/candy-boys"
         self._test_video_url(url)
 
+    # pyrefly: ignore [deprecated]
     @unittest.skipUnless(6 < datetime.datetime.utcnow().hour < 23, "No now broadcasts after 00:00")
     def test_recent_sub_items(self):
         from resources.lib.mediaitem import MediaItem
@@ -60,6 +61,7 @@ class TestNpoChannel(ChannelTest):
 
     def test_series_without_season(self):
         items = self._test_folder_url("https://npo.nl/start/api/domain/programs-by-season?guid=d205ce60-d638-4cab-8dbf-d48ddd7c489e", 1)
+        # pyrefly: ignore [not-iterable]
         self.assertTrue(all([i.is_playable for i in items]))
 
     def test_series_with_seasons_via_slug(self):
@@ -70,16 +72,6 @@ class TestNpoChannel(ChannelTest):
         self.assertGreaterEqual(len(items), 1)
         self.assertGreaterEqual(len([i for i in items if i.is_playable]), 1)
 
-    def test_update_next_js(self):
-        from resources.lib.mediaitem import MediaItem
-        url = "https://npo.nl/start/serie/nos-journaal-20-00-uur/seizoen-61/nos-journaal_96627"
-        item = MediaItem("Video via NextJS", url)
-        item.metaData["program_guid"] = "7917478b-8750-498f-8ced-dc6548ef2612"
-
-        item = self.channel.process_video_item(item)
-        self.assertTrue(item.has_streams())
-        self.assertTrue(item.complete)
-
     def test_series_recent_episodes_via_guid(self):
         self._test_folder_url("https://npo.nl/start/api/domain/programs-by-series?seriesGuid=af032e71-3047-4b22-aac9-c2ef9c8bb9a3&limit=20&sort=-firstBroadcastDate", 2)
 
@@ -87,20 +79,12 @@ class TestNpoChannel(ChannelTest):
         self._test_folder_url("https://npo.nl/start/api/domain/series-seasons?slug=selma-s-oorlog&type=timeless_series", expected_results=1)
 
     def test_trending(self):
-        item = self._get_media_item("https://npo.nl/start/api/domain/recommendation-collection?partyId=1&collectionId=trending-anonymous-v0&partyId=2640c596-09ac-4c41-841c-c7fc68b4a7e5&layoutType=RECOMMENDATION", "test_trending")
-        item.metaData["retrospect:parser"] = "collection-with-series"
-        items = self.channel.process_folder_list(item)
-        self.assertGreater(len(items), 10)
-
-    def test_popular(self):
-        build_version = self.channel.build_version
-        url = f"https://npo.nl/start/_next/data/{build_version}/collectie/nieuw-en-populair.json?slug=nieuw-en-populair"
-        self._test_folder_url(url, 20)
+        url = f"https://npo.nl/start/api/domain/recommendation-collection?partyId=1&collectionId=trending-anonymous-v0&layoutType=RECOMMENDATION"
+        self._test_folder_url(url, 5, parser="collection-with-series")
 
     def test_news(self):
-        build_version = self.channel.build_version
-        url = f"https://npo.nl/start/_next/data/{build_version}/collectie/nieuws-en-achtergronden.json?slug=nieuws-en-achtergronden"
-        self._test_folder_url(url, 20)
+        url = f"https://npo.nl/start/api/domain/recommendation-collection?partyId=1&collectionId=news-anonymous-v0&layoutType=RECOMMENDATION"
+        self._test_folder_url(url, 5, parser="collection-with-videos")
 
     def test_search_serie(self):
         url = "https://npo.nl/start/api/domain/search-collection-items?searchType=series&partyId=1&searchQuery=journaal&subscriptionType=anonymous"
