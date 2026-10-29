@@ -26,28 +26,38 @@ class Vault(object):
 
         self.__newKeyGeneratedInConstructor = False    # : This was the very first time a key was generated
 
-        # ask for PIN of no key is present
         if Vault.__Key is None:
-            howto_shown = self.__show_howto()
             key = self.__get_application_key()  # type: bytes
+            if key is not None:
+                Vault.__Key = key
+                Logger.trace("Using Application Key with MD5: %s (length=%s)",
+                             EncodingHelper.encode_md5(key), len(key))
 
-            # was there a key? No, let's initialize it.
-            if key is None:
-                Logger.warning("No Application Key present. Initializing a new one.")
+    def _initialize_vault(self):
+        """ Initializes the vault on first write by generating a key and asking the user to set a PIN.
 
-                # Show the how to if it was not already shown during this __init__()
-                if not howto_shown:
-                    self.__show_howto(force=True)
+        No-op if the vault is already unlocked.
 
-                key = self.__get_new_key()
-                if not self.change_pin(key):
-                    raise RuntimeError("Error creating Application Key.")
-                Logger.info("Created a new Application Key with MD5: %s (length=%s)",
-                            EncodingHelper.encode_md5(key), len(key))
-                self.__newKeyGeneratedInConstructor = True
+        :returns:   True if the vault is ready, False if PIN setup was cancelled or failed.
+        :rtype:     bool
 
-            Vault.__Key = key
-            Logger.trace("Using Application Key with MD5: %s (length=%s)", EncodingHelper.encode_md5(key), len(key))
+        """
+
+        if Vault.__Key is not None:
+            return True
+
+        Logger.warning("No Application Key present. Initializing a new one.")
+        self.__show_howto(force=True)
+        key = self.__get_new_key()
+        if not self.change_pin(key):
+            Logger.warning("Vault initialization failed: PIN setup was cancelled or mismatched.")
+            return False
+        Logger.info("Created a new Application Key with MD5: %s (length=%s)",
+                    EncodingHelper.encode_md5(key), len(key))
+        self.__newKeyGeneratedInConstructor = True
+        Vault.__Key = key
+        return True
+
 
     def change_pin(self, application_key=None):
         """ Stores an existing ApplicationKey using a new PIN.
@@ -125,9 +135,9 @@ class Vault(object):
 
         Logger.info("Resetting the vault to a new initial state.")
         AddonSettings.set_setting(Vault.__APPLICATION_KEY_SETTING, "", store=LOCAL)
-
-        # create a vault instance so we initialize a new one with a new PIN.
-        Vault()
+        Vault.__Key = None
+        if not Vault()._initialize_vault():
+            Logger.warning("Vault reset incomplete: PIN setup was cancelled.")
         return
 
     def get_channel_setting(self, channel_guid, setting_id):
@@ -151,6 +161,10 @@ class Vault(object):
         :return: the decrypted value for the setting.
         :rtype: str
         """
+
+        if Vault.__Key is None:
+            Logger.debug("Vault not initialised; returning None for '%s'", setting_id)
+            return None
 
         Logger.info("Decrypting value for setting '%s'", setting_id)
         encrypted_value = AddonSettings.get_setting(setting_id)
@@ -204,6 +218,8 @@ class Vault(object):
 
         """
 
+        if not self._initialize_vault():
+            return
         Logger.info("Encrypting value for setting '%s'", setting_id)
         input_value = XbmcWrapper.show_key_board(
             default, LanguageHelper.get_localized_string(
