@@ -102,6 +102,7 @@ class MediaItem:
         self.fanart = ""                          # : The fanart url (16:9, min 720p)
         self.icon = ""                            # : Low quality icon for list (1:1, min 256x256)
         self.poster = ""                          # : Poster artwork (2:3, min 500x750)
+        self.clearlogo = ""                       # : Channel logo (3:1, min 300x100)
 
         self.__date = ""                          # : value show in interface
         self.__timestamp = datetime.min           # : value for sorting, this one is set to minimum so if non is set, it's shown at the bottom
@@ -545,6 +546,8 @@ class MediaItem:
             art['fanart'] = self.fanart
         if self.poster:
             art['poster'] = self.poster
+        if self.clearlogo:
+            art['clearlogo'] = self.clearlogo
         item.setArt(art)
 
         item.setContentLookup(False)
