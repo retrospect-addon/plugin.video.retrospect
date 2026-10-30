@@ -11,3 +11,4 @@ _None_
 * Fixed: De Schatkamer channel due to React.js changes.
 * Fixed: TV Guide playback for NPO Start (See #2000).
 * Fixed: NPO Listing (Fixes #2000).
+* Fixed: UR Play listings (Fixes #2001).
