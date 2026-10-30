@@ -209,20 +209,18 @@ class Channel(chn_class.Channel):
         if not season_url:
             return data, items
 
-        season_data = UriHandler.open(season_url, additional_headers={"rsc": "0"})
-        next_info = Regexer.do_regex(r"(\{\\\"shouldNotBeInitiallyOpen[^>]+})[^>]+\)</script></body></html>", season_data)
-        if not next_info:
+        season_data = UriHandler.open(f"{season_url}?rsc", additional_headers={"rsc": "1"})
+        season_json = RSCHelper(season_data).convert_to_json()
+        season_info = JsonHelper.find_dict_by_key_from(season_json, "superSeriesSeasons")
+        if not season_info:
             return data, items
 
-        next_json = next_info[0].replace('\\"', '"')
-        try:
-            json_data =  JsonHelper(next_json)
-            for season_result in json_data.get_value("superSeriesSeasons"):
-                item = self.create_season_item(season_result)
-                if item:
-                    items.append(item)
-        finally:
-            return data, items
+        for season_result in season_info:
+            item = self.create_season_item(season_result)
+            if item:
+                items.append(item)
+
+        return data, items
 
     def check_for_single_video(self, _: JsonHelper, items: List[MediaItem]) -> List[MediaItem]:
         # Do we have items or not?
