@@ -57,13 +57,13 @@ class Channel(chn_class.Channel):
         self._add_data_parser("https://urplay.se/bladdra/alla-program", json=True,
                               name="Main TV Show parser",
                               preprocessor=NextJsParser(
-                                  key="className", value="AlphabeticProductList-module__-k7Sma__wrapper"),
+                                  key="data-sentry-component", value="AlphabeticProductList", return_parent=True),
                               parser=["children", -1], creator=self.create_alphabet_items)
 
         self._add_data_parser("https://urplay.se/bladdra/alla-kategorier", json=True,
                               name="Category parser",
                               preprocessor=NextJsParser(
-                                  key="className", value="AllCategoriesList-module__dZ8mUW__wrapper"),
+                                  key="className", value="dZ8mUW_wrapper", return_parent=True),
                               parser=["children"], creator=self.create_category_items)
 
         self._add_data_parser("https://urplay.se/bladdra/", json=True,
@@ -224,8 +224,8 @@ class Channel(chn_class.Channel):
         finally:
             return data, items
 
-    def check_for_single_video(self, data: JsonHelper, items: List[MediaItem]) -> List[MediaItem]:
-        # Do we have items ore not.
+    def check_for_single_video(self, _: JsonHelper, items: List[MediaItem]) -> List[MediaItem]:
+        # Do we have items or not?
         if len(items) > 0 or not self.parentItem:
             season_count = [s for s in items if s.is_folder]
             if len(season_count) > 1:
@@ -338,12 +338,12 @@ class Channel(chn_class.Channel):
 
         if show_title and include_show_title:
             if bool(episode) and not bool(season):
-                title = "{} - {} {:02d} - {}".format(show_title, self.__episode_text, episode, title)
+                title = f"{show_title} - {self.__episode_text} {episode:02d} - {title}"
             else:
                 title = "{} - {}".format(show_title, title)
 
         elif bool(episode) and not bool(season):
-            title = "{} {:02d} - {}".format(self.__episode_text, episode, title)
+            title = f"{self.__episode_text} {episode:02d} - {title}"
 
         # slug = result_set['slug']
         # url = "%s/program/%s" % (self.baseUrl, slug)
