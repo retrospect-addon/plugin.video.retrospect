@@ -1,11 +1,10 @@
-from resources.lib.chn_class import PreProcessorResult
 import json
+import re
 from typing import Any, Dict, Optional, Set, List, Union
-from typing import Tuple
 
+from resources.lib.chn_class import PreProcessorResult
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.logger import Logger
-from resources.lib.mediaitem import MediaItem
 
 
 class RSCHelper:
@@ -26,13 +25,57 @@ class RSCHelper:
         self._records.clear()
         self._root = None
 
-        for line in self._content.splitlines():
-            self._parse_line(line.strip())
+        self._parse_stream()
 
         if self._root is None:
             raise ValueError("No root record (0:) found in RSC content")
 
         return self._resolve(self._root)
+
+    def _parse_stream(self) -> None:
+        # Flight records normally end at a newline. However, T records contain
+        # raw UTF-8 text whose length is specified in bytes, not characters.
+        # That text may contain newlines and may be followed immediately by
+        # another record, so splitting the entire response into lines is unsafe.
+        stream = self._content.encode("utf-8").replace(b"\r\n", b"\n")
+        position = 0
+
+        while position < len(stream):
+            # Skip CR/LF separators between records. Byte 10 is '\n' and
+            # byte 13 is '\r'. Newlines inside T payloads are never skipped,
+            # because those payloads are consumed using their explicit length.
+            while position < len(stream) and stream[position] in (10, 13):
+                position += 1
+            if position >= len(stream):
+                break
+
+            # Detect a length-prefixed text record, e.g. "4c:T458,...".
+            # Both the record ID and the byte length are hexadecimal.
+            match = re.match(rb"([0-9a-fA-F]+):T([0-9a-fA-F]+),", stream[position:])
+            if match:
+                key = match.group(1).decode("ascii")
+                length = int(match.group(2), 16)
+
+                # The content begins just after "<id>:T<length>,". Read
+                # exactly 'length' bytes, even if they contain line breaks.
+                start = position + match.end()
+                end = start + length
+                if end > len(stream):
+                    raise ValueError(f"Incomplete Flight text record {key}")
+                self._records[key] = stream[start:end].decode("utf-8")
+
+                # Resume at the very next byte, which may be the beginning of
+                # another record without any newline in between.
+                position = end
+                continue
+
+            # Other record types are newline-delimited JSON or import/control
+            # records; let _parse_line() interpret their contents.
+            end = stream.find(b"\n", position)
+            if end < 0:
+                end = len(stream)
+            self._parse_line(stream[position:end].decode("utf-8").strip())
+            position = end + 1
 
     def _parse_line(self, line: str) -> None:
         if not line or ":" not in line:
