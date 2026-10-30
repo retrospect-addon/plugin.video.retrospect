@@ -421,7 +421,7 @@ class Channel(chn_class.Channel):
         live_tv.isLive = True
 
         recent = FolderItem(
-            LanguageHelper.get_localized_string(LanguageHelper.Recent), "https://npo.nl/start/api/domain/guide-channels",
+            LanguageHelper.get_localized_string(LanguageHelper.PastDays), "https://npo.nl/start/api/domain/guide-channels",
             content_type=contenttype.VIDEOS)
         recent.complete = True
         recent.dontGroup = True
