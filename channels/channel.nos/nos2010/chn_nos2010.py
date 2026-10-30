@@ -909,14 +909,8 @@ class Channel(chn_class.Channel):
 
     def update_nextjs_video(self, item: MediaItem) -> MediaItem:
         data = UriHandler.open(item.url)
-        next_js_data = Regexer.do_regex(r"__NEXT_DATA__[^>]+>(.+?)</script>", data)[0]
-        next_js_json = JsonHelper(next_js_data)
-        data = next_js_json.get_value("props", "pageProps", "dehydratedState", "queries", -1, "state", "data")
-        if isinstance(data, list):
-            p = [p for p in data if p["guid"] == item.metaData["program_guid"]][0]
-        else:
-            p = data
-        return self.__update_video_item(item, p["productId"])
+        product_id = Regexer.do_regex(r'productId\\":\\"([^"]+)\\"', data)[0]
+        return self.__update_video_item(item, product_id)
 
     # noinspection PyUnusedLocal
     def search_site(self, url: Optional[str] = None, needle: Optional[str] = None) -> List[MediaItem]:
