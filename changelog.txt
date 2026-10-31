@@ -1,8 +1,8 @@
-[B]Retrospect v5.7.39 - Changelog - 2026-09-20[/B]
-t.b.d.
+[B]Retrospect v5.7.40 - Changelog - 2026-10-31[/B]
+Minor channel fixes for NPO Start, De Schatkamer and UR Play.
 
 [B]Framework related[/B]
-_None_
+* Updated: RSCHelper parsers to understand multiline (byte length) data.
 
 [B]GUI/Settings/Language related[/B]
 _None_
