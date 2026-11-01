@@ -19,11 +19,11 @@ class TestUrPlayChannel(ChannelTest):
         self.assertEqual(len(items), 2)
 
     def test_main_tv_show_list(self):
-        url = "https://urplay.se/bladdra/alla-program"
+        url = "https://urplay.se/bladdra/alla-program?_rsc"
         self._test_folder_url(url, 100)
 
     def test_main_category_list(self):
-        url = "https://urplay.se/bladdra/alla-kategorier"
+        url = "https://urplay.se/bladdra/alla-kategorier?_rsc"
         self._test_folder_url(url, 10)
 
     def test_video_play(self):
@@ -35,7 +35,7 @@ class TestUrPlayChannel(ChannelTest):
         self._test_video_url(url)
 
     def test_category_content(self):
-        url = "https://urplay.se/bladdra/dokumentar"
+        url = "https://urplay.se/bladdra/dokumentar?_rsc"
         items = self._test_folder_url(url, 10) or []
         self.assertGreaterEqual(len(items[0].items), 1)
 
