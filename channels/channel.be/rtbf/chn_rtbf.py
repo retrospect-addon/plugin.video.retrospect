@@ -10,7 +10,7 @@ from resources.lib.mediaitem import MediaItem
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.datehelper import DateHelper
-from resources.lib.streams.m3u8 import M3u8
+from resources.lib.streams.inputstream import InputStream
 
 
 class Channel(chn_class.Channel):
@@ -282,9 +282,9 @@ class Channel(chn_class.Channel):
         if hls_url is not None and "m3u8" in hls_url:
             Logger.debug("Found HLS url for %s: %s", media_info.json["streamName"], hls_url)
 
-            for s, b in M3u8.get_streams_from_m3u8(hls_url):
-                item.add_stream(s, b)
-                item.complete = True
+            stream = item.add_stream(hls_url, 0)
+            InputStream().set_input_stream_addon_input(stream)
+            item.complete = True
         else:
             Logger.debug("No HLS url found for %s. Fetching RTMP Token.", media_info.json["streamName"])
             # fetch the token:

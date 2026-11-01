@@ -4,15 +4,13 @@ import urllib.parse as parse
 
 from resources.lib import chn_class, mediatype
 from resources.lib.mediaitem import MediaItem
-from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
-from resources.lib.parserdata import ParserData
 from resources.lib.logger import Logger
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.htmlhelper import HtmlHelper
 from resources.lib.urihandler import UriHandler
-from resources.lib.streams.m3u8 import M3u8
+from resources.lib.streams.inputstream import InputStream
 
 
 class Channel(chn_class.Channel):
@@ -75,7 +73,7 @@ class Channel(chn_class.Channel):
         self.episodeItemJson = []
         self.videoItemJson = ["items", ]
 
-        self._add_data_parser(self.mainListUri, preprocessor=self.add_live_items, match_type=ParserData.MatchExact,
+        self._add_data_parser(self.mainListUri, preprocessor=self.add_live_items, match_type="Exact",
                               parser=self.episodeItemJson, creator=self.create_episode_item,
                               json=True)
 
@@ -150,7 +148,7 @@ class Channel(chn_class.Channel):
 
         Logger.info("Adding Live Streams")
 
-        if self.liveUrl.endswith(".m3u8"):
+        if self.liveUrl and self.liveUrl.endswith(".m3u8"):
             # We actually have a single stream.
             title = "{} - {}".format(self.channelName, LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId))
             live_item = MediaItem(title, self.liveUrl, media_type=mediatype.VIDEO)
@@ -231,11 +229,12 @@ class Channel(chn_class.Channel):
                 if bitrate:
                     live_item.add_stream(url, bitrate)
 
+                    # pyrefly: ignore [not-iterable]
                     if url == live_stream_value and ".m3u8" in url:
                         # if it was equal to the previous one, assume we have a m3u8. Reset the others.
                         Logger.info("Found same M3u8 stream for all streams for this Live channel, using that one: %s", url)
                         live_item.streams = []
-                        live_item.url = url
+                        live_item.url = url or ""
                         live_item.complete = False
                         break
                     elif "playlist.m3u8" in url:
@@ -334,7 +333,7 @@ class Channel(chn_class.Channel):
         if thumb_url:
             item.thumb = thumb_url
 
-        item.description = HtmlHelper.to_text(result_set.get("text"))
+        item.description = HtmlHelper.to_text(result_set.get("text")) or ""
 
         posix = result_set.get("timestamp", None)
         if posix:
@@ -407,15 +406,8 @@ class Channel(chn_class.Channel):
         Logger.debug("Updating a (Live) video item")
         content, url = UriHandler.header(item.url)
 
-        if AddonSettings.use_adaptive_stream_add_on():
-            stream = item.add_stream(url, 0)
-            M3u8.set_input_stream_addon_input(
-                stream, stream_headers=item.HttpHeaders, manifest_headers=item.HttpHeaders)
-            item.complete = True
-        else:
-            for s, b in M3u8.get_streams_from_m3u8(url, append_query_string=True):
-                item.complete = True
-                item.add_stream(s, b)
-            item.complete = True
-
+        stream = item.add_stream(url, 0)
+        InputStream().set_input_stream_addon_input(
+            stream, stream_headers=item.HttpHeaders, manifest_headers=item.HttpHeaders)
+        item.complete = True
         return item

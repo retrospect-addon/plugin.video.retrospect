@@ -48,6 +48,10 @@ class Channel:
     main class from which all channels inherit
     """
 
+    icon: str
+    fanart: str
+    poster: str
+
     def __init__(self, channel_info):
         """ Initialisation of the class.
 
@@ -1022,7 +1026,7 @@ class Channel:
             self.dataParsers[url] = [data]
         return
 
-    def _get_setting(self, setting_id, value_for_none=None):
+    def _get_setting(self, setting_id: str, value_for_none=None) -> Optional[str]:
         """ Retrieves channel specific settings. Just to prevent us from importing AddonSettings in all channels.
 
         @param setting_id:

@@ -5,8 +5,7 @@ from typing import Optional
 import pytz
 
 from resources.lib.regexer import Regexer
-from resources.lib.streams.m3u8 import M3u8
-from resources.lib.streams.mpd import Mpd
+from resources.lib.streams.inputstream import InputStream
 from resources.lib.urihandler import UriHandler
 from resources.lib import mediatype
 from typing import Dict
@@ -236,7 +235,7 @@ class Channel(chn_class.Channel):
         series_id = url.split("=")[-1]
 
         url = f"https://urplay.se/program/{series_id}"
-        data = UriHandler.open(url, additional_headers={"rsc": "1"})
+        data: str = UriHandler.open(url, additional_headers={"rsc": "1"})
         rsc = RSCHelper(data)
         json_data = JsonHelper(rsc.convert_to_json())
         video_info = json_data.find_dict_by_key_value(key="name", value="Next.Metadata")
@@ -428,14 +427,8 @@ class Channel(chn_class.Channel):
             return item
 
         for stream_type, stream_url in json.get_value("sources").items():
-            if stream_type == "dash":
-                stream = item.add_stream(stream_url, 1)
-                Mpd.set_input_stream_addon_input(stream)
-                item.complete = True
-            elif stream_type == "hls":
-                stream = item.add_stream(stream_url, 0)
-                M3u8.set_input_stream_addon_input(stream)
-                item.complete = True
+            stream = item.add_stream(stream_url, 1 if stream_type == "dash" else 0)
+            InputStream().set_input_stream_addon_input(stream)
         return item
 
     def __get_poster_url(self, show_id: str, size: str = "1080") -> str:
@@ -961,11 +954,11 @@ class Channel(chn_class.Channel):
     #     for stream_type, stream_url in json.get_value("sources").items():
     #         if stream_type == "dash":
     #             stream = item.add_stream(stream_url, 1)
-    #             Mpd.set_input_stream_addon_input(stream)
+    #             InputStream().set_input_stream_addon_input(stream)
     #             item.complete = True
     #         elif stream_type == "hls":
     #             stream = item.add_stream(stream_url, 0)
-    #             M3u8.set_input_stream_addon_input(stream)
+    #             InputStream().set_input_stream_addon_input(stream)
     #             item.complete = True
     #     #
     #     # # Extract stream JSON data from HTML

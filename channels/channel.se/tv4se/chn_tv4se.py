@@ -1,5 +1,8 @@
 # coding=utf-8  # NOSONAR
 # SPDX-License-Identifier: GPL-3.0-or-later
+from typing import Any
+from typing import Dict
+from resources.lib.chn_class import PreProcessorResult
 import json
 import math
 import time
@@ -19,12 +22,10 @@ from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.logger import Logger
 from resources.lib.retroconfig import Config
-from resources.lib.streams.mpd import Mpd
+from resources.lib.streams.inputstream import InputStream, InputStreamAdaptiveDrmConfig
 from resources.lib.webdialogue import WebDialogue
 from resources.lib.xbmcwrapper import XbmcWrapper, XbmcDialogProgressWrapper
-from resources.lib.streams.m3u8 import M3u8
 from resources.lib.urihandler import UriHandler
-from resources.lib.helpers.subtitlehelper import SubtitleHelper
 
 
 class Channel(chn_class.Channel):
@@ -134,7 +135,7 @@ class Channel(chn_class.Channel):
             return self.fetch_token()
 
         header, payload, signature = split_data
-        payload_data = EncodingHelper.decode_base64(payload + '=' * (-len(payload) % 4))
+        payload_data = EncodingHelper.decode_base64(payload + '=' * (-len(payload) % 4)).decode('utf-8')
         payload = JsonHelper(payload_data)
         expires_at = payload.get_value("exp")
         expire_date = DateHelper.get_date_from_posix(float(expires_at), tz=pytz.UTC)
@@ -160,8 +161,7 @@ class Channel(chn_class.Channel):
             return True
 
         # Fetch an existing token
-        token: str = AddonSettings.get_channel_setting(
-            self, self.__refresh_token_setting_id, store=LOCAL)
+        token: Optional[str] = AddonSettings.get_channel_setting(self, self.__refresh_token_setting_id, store=LOCAL)
         if not token:
             token = self.fetch_token()
 
@@ -218,9 +218,9 @@ class Channel(chn_class.Channel):
         items.append(__create_item(LanguageHelper.Search, self.search_url))
         return data, items
 
-    def fetch_mainlist_pages(self, data: str) -> Tuple[str, List[MediaItem]]:
-        items = []
-        data = JsonHelper(data)
+    def fetch_mainlist_pages(self, raw_data: str) -> PreProcessorResult:
+        items: List[MediaItem] = []
+        data = JsonHelper(raw_data)
         page_data = data
         count = 0
 
@@ -235,6 +235,7 @@ class Channel(chn_class.Channel):
         try:
             while count < 25:
                 count += 1
+                # pyrefly: ignore [missing-attribute]
                 if progress.progress_update(count, number_of_pages, int(count * 100 / number_of_pages), False, updated.format(count, number_of_pages)):
                     break
 
@@ -254,10 +255,11 @@ class Channel(chn_class.Channel):
                     tvshow_url, additional_headers=self.httpHeaders, json=tvshow_data,
                     force_cache_duration=60 * 60)
 
-                page_data = JsonHelper(new_data)
-                data_items = page_data.get_value(*self.currentParser.Parser)
-                list_items = data.get_value(*self.currentParser.Parser)
-                list_items += data_items
+                if self.currentParser:
+                    page_data = JsonHelper(new_data)
+                    data_items = page_data.get_value(*self.currentParser.Parser)
+                    list_items = data.get_value(*self.currentParser.Parser)
+                    list_items += data_items
         finally:
             progress.close()
 
@@ -467,18 +469,19 @@ class Channel(chn_class.Channel):
         item.postJson = data
         return item
 
-    def create_api_sport_event(self, result_set: dict) -> Optional[MediaItem]:
+    def create_api_sport_event(self, result_set: Dict[str, Any]) -> Optional[MediaItem]:
         title = result_set["title"]
         event_id = result_set["id"]
         url = self.__get_video_url(event_id)
 
         item = MediaItem(title, url, media_type=mediatype.VIDEO)
         item.isLive = result_set.get("isLiveContent", False)
-        item.description = result_set.get("league")
+        item.description = result_set.get("league") or ""
         self.__set_art(item, result_set["images"])
         self.__set_playback_window(item, result_set)
         return item
 
+    # noinspection unused-parameter
     def create_api_theme_panel(self, result_set: dict) -> Optional[MediaItem]:
         return None
 
@@ -501,8 +504,8 @@ class Channel(chn_class.Channel):
         self.__set_art(item, result_set.get("images"))
         return item
 
-    # noinspection PyUnusedLocal
-    def check_for_seasons(self, data: JsonHelper, items: List[MediaItem]) -> List[MediaItem]:
+    # noinspection PyUnusedLocal,unused-parameter
+    def check_for_seasons(self, json_data: JsonHelper, items: List[MediaItem]) -> List[MediaItem]:
         # If not seasons, or just one, fetch the episodes
         if len(items) != 1:
             return items
@@ -513,8 +516,10 @@ class Channel(chn_class.Channel):
             "SeasonEpisodes",
             {"seasonId": season_id, "input": {"limit": self.__max_page_size, "offset": 0}}
         )
-        self.parentItem.url = url
-        self.parentItem.postJson = data
+
+        if self.parentItem:
+            self.parentItem.url = url
+            self.parentItem.postJson = data
         return self.process_folder_list(self.parentItem)
 
     def search_site(self, url: Optional[str] = None, needle: Optional[str] = None) -> List[MediaItem]:
@@ -611,14 +616,9 @@ class Channel(chn_class.Channel):
         if ".mpd" in stream_url:
             return self.__update_dash_video(item, stream_info)
 
-        subtitle = M3u8.get_subtitle(stream_url)
         stream = item.add_stream(stream_url, 0)
-        M3u8.set_input_stream_addon_input(stream)
+        InputStream().set_input_stream_addon_input(stream)
         item.complete = True
-
-        if subtitle:
-            subtitle = subtitle.replace(".m3u8", ".webvtt")
-            item.subtitle = SubtitleHelper.download_subtitle(subtitle, format="m3u8srt")
         return item
 
     def update_live_item(self, item):
@@ -646,8 +646,8 @@ class Channel(chn_class.Channel):
         Logger.debug('Starting update_live_item for %s (%s)', item.name, self.channelName)
 
         item.streams = []
-        for s, b in M3u8.get_streams_from_m3u8(item.url):
-            item.add_stream(s, b)
+        stream = item.add_stream(item.url, 0)
+        InputStream().set_input_stream_addon_input(stream)
 
         item.complete = True
         return item
@@ -746,7 +746,7 @@ class Channel(chn_class.Channel):
         """
 
         base_url = f"https://client-gateway.tv4.a2d.tv/graphql?operationName={operation}&"
-        query = ""
+        query: str
 
         # 1:1 Generated from javascript source
         fragments = {
@@ -952,21 +952,23 @@ class Channel(chn_class.Channel):
 
         license_info = playback_item.get("license", None)
         if license_info is not None:
-            license_key_token = license_info.get("token")
+            Logger.debug(f"TV4: Using DRM protected stream.")
             auth_token = license_info["castlabsToken"]
             header = {
                 "x-dt-auth-token": auth_token,
                 "content-type": "application/octstream"
             }
             license_url = license_info["castlabsServer"]
-            license_key = Mpd.get_license_key(
-                license_url, key_value=license_key_token, key_headers=header)
-
-            Mpd.set_input_stream_addon_input(
-                stream, license_key=license_key)
+            drm_config = InputStreamAdaptiveDrmConfig(
+                license_type="com.widevine.alpha",
+                server_url=license_url,
+                headers=header
+            )
+            InputStream().set_input_stream_addon_input(stream, drm_config=drm_config)
             item.isDrmProtected = False
         else:
-            Mpd.set_input_stream_addon_input(stream)
+            Logger.debug(f"TV4: Using unprotected stream.")
+            InputStream().set_input_stream_addon_input(stream)
 
         item.complete = True
         return item
