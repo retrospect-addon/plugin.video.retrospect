@@ -1,6 +1,7 @@
 name: Sync addon metadata translations
 
 on:
+  workflow_dispatch:
   push:
     branches: [ master, main ]
     paths:
