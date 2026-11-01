@@ -1184,7 +1184,7 @@ class Channel(chn_class.Channel):
         base_url = urljoin(item.url, "/")
         for script in scripts:
             script_data = UriHandler.open(f"{base_url}{script}")
-            slug = Regexer.do_regex('slug:\W*"([^"]+)"', script_data)
+            slug = Regexer.do_regex(r'slug:\W*"([^"]+)"', script_data)
             if slug:
                 slug = slug[0]
                 break
