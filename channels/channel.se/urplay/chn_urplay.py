@@ -141,7 +141,7 @@ class Channel(chn_class.Channel):
         image = self.__get_image_url(show_id)
         poster = self.__get_poster_url(show_id)
 
-        url = f"https://urplay.se/api/v1/season_episodes?seriesId={show_id}"
+        url = f"https://urplay.se/api/v1/season_episodes?seriesId={show_id}&_rsc"
         name = result_set.get("children", result_set.get("title"))
         item = FolderItem(name, url, content_type=contenttype.EPISODES)
         item.set_artwork(thumb=image, fanart=image, poster=poster)
@@ -209,7 +209,7 @@ class Channel(chn_class.Channel):
         if not season_url:
             return data, items
 
-        season_data = UriHandler.open(f"{season_url}?rsc", additional_headers={"rsc": "1"})
+        season_data = UriHandler.open(f"{season_url}?_rsc", additional_headers={"rsc": "1"})
         season_json = RSCHelper(season_data).convert_to_json()
         season_info = JsonHelper.find_dict_by_key_from(season_json, "superSeriesSeasons")
         if not season_info:
@@ -277,7 +277,7 @@ class Channel(chn_class.Channel):
     def create_season_item(self, result_set: Dict) -> FolderItem:
         name = result_set["label"]
         season_id = result_set["id"]
-        url = f"https://urplay.se/api/v1/season_episodes?seriesId={season_id}"
+        url = f"https://urplay.se/api/v1/season_episodes?seriesId={season_id}&_rsc"
         item = FolderItem(name, url, content_type=contenttype.EPISODES)
 
         season_number = Regexer.do_regex(r".+(\d+)", name)
