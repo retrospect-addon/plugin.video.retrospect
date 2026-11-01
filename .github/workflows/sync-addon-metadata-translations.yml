@@ -11,7 +11,7 @@ on:
 jobs:
   default:
     if: github.repository == 'retrospect-addon/plugin.video.retrospect'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
 
@@ -23,7 +23,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
-          python-version: '3.9'
+          python-version: '3.x'
 
       - name: Install dependencies
         run: |
