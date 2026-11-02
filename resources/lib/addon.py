@@ -2,6 +2,7 @@
 
 import os.path
 import sys
+import threading
 
 import xbmc
 
@@ -33,6 +34,13 @@ def run_addon():
                                         Config.appName,
                                         append=append_log_file,
                                         dual_logger=lambda x, y=4: xbmc.log(x, y))
+
+        def _thread_excepthook(args: threading.ExceptHookArgs) -> None:
+            name = args.thread.name if args.thread else "<unknown>"
+            Logger.error("Unhandled exception in thread '%s'", name,
+                         exc_info=(args.exc_type, args.exc_value, args.exc_traceback))
+
+        threading.excepthook = _thread_excepthook
 
         from resources.lib.urihandler import UriHandler
         from resources.lib.addonsettings import AddonSettings
