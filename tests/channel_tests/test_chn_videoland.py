@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 import unittest
+from unittest import mock
 
 from resources.lib.helpers.datehelper import DateHelper
 from .channeltest import ChannelTest
@@ -75,6 +76,78 @@ class TestVideolandNLChannel(ChannelTest):
         self.assertEqual(changed[0].name, "Aflevering 3")
         self.assertEqual(changed[1].name, "Aflevering 2")
         self.assertEqual(changed[2].name, "Aflevering 1")
+
+    def test_episode_number_not_added_for_numbered_names(self):
+        data = self.JsonWrapper({"featureId": "videos_by_season_by_program"})
+        items = [
+            self.create_media_item("1. Train"),
+            self.create_media_item("2. Exile"),
+            self.create_media_item("3. Devotion"),
+        ]
+
+        changed = self.channel.postprocess_episodes(data, items)
+        self.assertCountEqual(changed, items)
+        self.assertEqual(changed[0].name, "1. Train")
+        self.assertEqual(changed[1].name, "2. Exile")
+        self.assertEqual(changed[2].name, "3. Devotion")
+
+    def test_episode_number_not_added_for_partially_numbered_names(self):
+        data = self.JsonWrapper({"featureId": "videos_by_season_by_program"})
+        items = [
+            self.create_media_item("1. Train"),
+            self.create_media_item("2. Exile"),
+            self.create_media_item("Special"),
+        ]
+
+        changed = self.channel.postprocess_episodes(data, items)
+        self.assertCountEqual(changed, items)
+        self.assertEqual(changed[0].name, "1. Train")
+        self.assertEqual(changed[1].name, "2. Exile")
+        self.assertEqual(changed[2].name, "Special")
+
+    def test_episode_date_filled_in_for_numbered_names(self):
+        data = self.JsonWrapper({"featureId": "videos_by_season_by_program"})
+        items = [
+            self.create_media_item("Aflevering 1", date="2022-07-05"),
+            self.create_media_item("Aflevering 2"),
+        ]
+
+        changed = self.channel.postprocess_episodes(data, items)
+        self.assertCountEqual(changed, items)
+        self.assertEqual(changed[0].name, "Aflevering 1")
+        self.assertEqual(changed[1].name, "Aflevering 2 [date unknown]")
+        self.assertEqual(changed[1].get_date(), "2022-07-05")
+
+    def test_episode_names_not_cleaned_by_default(self):
+        data = self.JsonWrapper({"featureId": "videos_by_season_by_program"})
+        items = [
+            self.create_media_item("2. Aflevering 2"),
+            self.create_media_item("1. Aflevering 1"),
+        ]
+
+        changed = self.channel.postprocess_episodes(data, items)
+        self.assertEqual(changed[0].name, "2. Aflevering 2")
+        self.assertEqual(changed[1].name, "1. Aflevering 1")
+
+    def test_episode_names_cleaned_when_enabled(self):
+        data = self.JsonWrapper({"featureId": "videos_by_season_by_program"})
+        items = [
+            self.create_media_item("2. Aflevering 2"),
+            self.create_media_item("1. Aflevering 1"),
+            self.create_media_item("3. Aflevering 4"),
+            self.create_media_item("4. Train"),
+        ]
+
+        with mock.patch.object(self.channel, "_get_setting",
+                               side_effect=lambda setting_id, *args, **kwargs:
+                               "true" if setting_id == "clean_episode_names" else None):
+            changed = self.channel.postprocess_episodes(data, items)
+
+        self.assertEqual(changed[0].name, "Aflevering 2")
+        self.assertEqual(changed[1].name, "Aflevering 1")
+        # Numbers that don't match and other names are left alone.
+        self.assertEqual(changed[2].name, "3. Aflevering 4")
+        self.assertEqual(changed[3].name, "4. Train")
 
     def test_episode_number_date_filled_in(self):
         data = self.JsonWrapper({"featureId": "videos_by_season_by_program"})
