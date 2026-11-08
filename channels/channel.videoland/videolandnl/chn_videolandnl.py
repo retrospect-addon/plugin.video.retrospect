@@ -288,6 +288,14 @@ class Channel(chn_class.Channel):
                 or not all(item.media_type == mediatype.EPISODE for item in items)):
             return items
 
+        # Videoland prefixes episode titles with their number, which results in names like
+        # "1. Aflevering 1". Optionally strip the redundant prefix.
+        if self._get_setting("clean_episode_names", "false") == "true":
+            for item in items:
+                match = re.search(r"^(\d+)\.\s+([Aa]flevering (\d+))$", item.name)
+                if match and int(match.group(1)) == int(match.group(3)):
+                    item.name = match.group(2)
+
         if not any(re.search(r"^[Aa]flevering \d+|^\d+\.", item.name) for item in items):
             for index, item in enumerate(items, start=1):
                 item.name = f"{index:02} {item.name}"

@@ -558,7 +558,11 @@ msgctxt "#30129"
 msgid "Re-Authenticate"
 msgstr ""
 
-# empty strings from id 30130 to 30189
+msgctxt "#30130"
+msgid "Remove duplicate episode numbers from names"
+msgstr ""
+
+# empty strings from id 30131 to 30189
 
 msgctxt "#30190"
 msgid "Monday"

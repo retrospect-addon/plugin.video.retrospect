@@ -543,6 +543,10 @@ msgctxt "#30129"
 msgid "Re-Authenticate"
 msgstr "Opnieuw authenticeren"
 
+msgctxt "#30130"
+msgid "Remove duplicate episode numbers from names"
+msgstr "Dubbele afleveringsnummers uit namen verwijderen"
+
 # used for list limits
 # empty strings from id 30126 to 30189
 msgctxt "#30190"
