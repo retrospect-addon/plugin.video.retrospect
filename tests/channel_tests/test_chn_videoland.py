@@ -76,6 +76,47 @@ class TestVideolandNLChannel(ChannelTest):
         self.assertEqual(changed[1].name, "Aflevering 2")
         self.assertEqual(changed[2].name, "Aflevering 1")
 
+    def test_episode_number_not_added_for_numbered_names(self):
+        data = self.JsonWrapper({"featureId": "videos_by_season_by_program"})
+        items = [
+            self.create_media_item("1. Train"),
+            self.create_media_item("2. Exile"),
+            self.create_media_item("3. Devotion"),
+        ]
+
+        changed = self.channel.postprocess_episodes(data, items)
+        self.assertCountEqual(changed, items)
+        self.assertEqual(changed[0].name, "1. Train")
+        self.assertEqual(changed[1].name, "2. Exile")
+        self.assertEqual(changed[2].name, "3. Devotion")
+
+    def test_episode_number_not_added_for_partially_numbered_names(self):
+        data = self.JsonWrapper({"featureId": "videos_by_season_by_program"})
+        items = [
+            self.create_media_item("1. Train"),
+            self.create_media_item("2. Exile"),
+            self.create_media_item("Special"),
+        ]
+
+        changed = self.channel.postprocess_episodes(data, items)
+        self.assertCountEqual(changed, items)
+        self.assertEqual(changed[0].name, "1. Train")
+        self.assertEqual(changed[1].name, "2. Exile")
+        self.assertEqual(changed[2].name, "Special")
+
+    def test_episode_date_filled_in_for_numbered_names(self):
+        data = self.JsonWrapper({"featureId": "videos_by_season_by_program"})
+        items = [
+            self.create_media_item("Aflevering 1", date="2022-07-05"),
+            self.create_media_item("Aflevering 2"),
+        ]
+
+        changed = self.channel.postprocess_episodes(data, items)
+        self.assertCountEqual(changed, items)
+        self.assertEqual(changed[0].name, "Aflevering 1")
+        self.assertEqual(changed[1].name, "Aflevering 2 [date unknown]")
+        self.assertEqual(changed[1].get_date(), "2022-07-05")
+
     def test_episode_number_date_filled_in(self):
         data = self.JsonWrapper({"featureId": "videos_by_season_by_program"})
         items = [

@@ -275,28 +275,32 @@ class Channel(chn_class.Channel):
         # If no episodes have a date, Kodi orders by name, so "Another episode name" becomes the first episode instead of the second.
         # If some episodes have a date and some later ones don't, Kodi shows the later ones as the first episodes (mindate), followed by the ones with a date.
 
-        # This postprocessing function fixes name ordering by adding an episode number in front of the title if the episodes
-        # are not like "Aflevering 1", "Aflevering 2" and so on.
-        # Episode names become ["01 Some episode name", "02 Another episode name", "03 Yet another episode name"].
-        # Numbered episodes are fairly common, and in this case it is useful to achieve the right sort order by name.
+        # This postprocessing function fixes name ordering by adding an episode number in front of the title if none of
+        # the episodes are already numbered. Videoland usually numbers them itself ("1. Some episode name") and older
+        # seasons use "Aflevering 1", "Aflevering 2" and so on; those are left untouched.
+        # Otherwise episode names become ["01 Some episode name", "02 Another episode name", "03 Yet another episode name"].
 
         # This postprocessing function fixes date ordering by setting the date of an episode, if it has no date, to the date of the previous episode.
-        # This is probably not the real broadcast date, but it at least fixes the order.
-        if (len(items) > 1
-                and data.json.get("featureId") == "videos_by_season_by_program"
-                and all(item.media_type == mediatype.EPISODE
-                        and not re.match(r"[Aa]flevering \d+", item.name) for item in
-                        items)):
-            date = ""
+        # This is probably not the real broadcast date, but it at least fixes the order. This is done for numbered
+        # seasons as well, as the date ordering issue is unrelated to the naming.
+        if (len(items) <= 1
+                or data.json.get("featureId") != "videos_by_season_by_program"
+                or not all(item.media_type == mediatype.EPISODE for item in items)):
+            return items
+
+        if not any(re.search(r"^[Aa]flevering \d+|^\d+\.", item.name) for item in items):
             for index, item in enumerate(items, start=1):
                 item.name = f"{index:02} {item.name}"
-                if not item.has_date() and date:
-                    previous_episode_date = DateHelper.get_datetime_from_string(date, "%Y-%m-%d")
-                    item.set_date(previous_episode_date.year, previous_episode_date.month,
-                                  previous_episode_date.day)
-                    item.name = f"{item.name} [date unknown]"
-                else:
-                    date = item.get_date()
+
+        date = ""
+        for item in items:
+            if not item.has_date() and date:
+                previous_episode_date = DateHelper.get_datetime_from_string(date, "%Y-%m-%d")
+                item.set_date(previous_episode_date.year, previous_episode_date.month,
+                              previous_episode_date.day)
+                item.name = f"{item.name} [date unknown]"
+            else:
+                date = item.get_date()
 
         return items
 
