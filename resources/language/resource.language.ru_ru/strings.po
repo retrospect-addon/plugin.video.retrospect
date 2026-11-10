@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
 "Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2026-05-21 06:16+0000\n"
+"PO-Revision-Date: 2026-11-10 17:38+0000\n"
 "Last-Translator: Andrei Stepanov <adem4ik@gmail.com>\n"
 "Language-Team: Russian <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-retrospect/ru_ru/>\n"
 "Language: ru_ru\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 2026.5\n"
+"X-Generator: Weblate 2026.11.1\n"
 
 msgctxt "Addon Summary"
 msgid "Retrospect allows you to watch re-runs/catch-ups of TV shows made available via their official broadcasters."
@@ -783,6 +783,14 @@ msgctxt "#30378"
 msgid "Remove Item"
 msgstr "Удалить элемент"
 
+msgctxt "#30379"
+msgid "Series"
+msgstr "Сериалы"
+
+msgctxt "#30380"
+msgid "Past week"
+msgstr "За прошлую неделю"
+
 # empty strings from id 30365 to 30400
 msgctxt "#30401"
 msgid "Dutch"
@@ -1177,6 +1185,10 @@ msgstr "Показывать потоки с функциями доступно
 msgctxt "#30588"
 msgid "This stream cannot be played due to geographical restrictions."
 msgstr "Этот поток не может быть воспроизведён из-за географических ограничений."
+
+msgctxt "#30589"
+msgid "Live streams"
+msgstr "Прямые трансляции"
 
 # empty strings from id 30584 to 30589
 msgctxt "#30590"
