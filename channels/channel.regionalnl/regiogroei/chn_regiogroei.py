@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
+import re
 
 import pytz
 
@@ -55,7 +56,8 @@ class Channel(chn_class.Channel):
             self.videoUrlFormat = "https://omroepzeeland.bbvms.com/p/regiogroei_zeeland_web_videoplayer/c/{}.json"
             self.recentSlug = "omroep-zeeland-tv"
             self.liveUrl = "https://api.regiogroei.cloud/page/channel/omroep-zeeland-tv?channel=omroep-zeeland-tv"
-            self.httpHeaders["accept"] = "application/vnd.groei.zeeland+json;v=2.0"
+            # API versions before 10.0 return HTTP 502 for (some) Zeeland episodes.
+            self.httpHeaders["accept"] = "application/vnd.groei.zeeland+json;v=10.0"
 
         elif self.channelCode == "rtvnoord":
             self.mainListUri = "https://api.regiogroei.cloud/page/tv/programs?noord"
@@ -86,7 +88,8 @@ class Channel(chn_class.Channel):
             self.noImage = "omroepgelderlandimage.png"
             self.videoUrlFormat = "https://omroepgelderland.bbvms.com/p/regiogroei_gelderland_web_videoplayer/c/{}.json"
             self.recentSlug = "tv-gelderland"
-            self.httpHeaders["accept"] = "application/vnd.groei.gelderland+json;v=3.0"
+            # API versions before 10.0 return HTTP 502 for GLD Nieuws and its episodes.
+            self.httpHeaders["accept"] = "application/vnd.groei.gelderland+json;v=10.0"
             self.liveUrl = "https://api.regiogroei.cloud/page/channel/tv-gelderland?channel=tv-gelderland"
 
         elif self.channelCode == "rtvoost":
@@ -120,6 +123,26 @@ class Channel(chn_class.Channel):
                               name="Videos for show parsers",
                               parser=["components", ("type", "episode-list", 0), "items"],
                               creator=self.create_video_item)
+        self._add_data_parser("https://api.regiogroei.cloud/page/program", json=True,
+                              name="Pages for show parsers",
+                              parser=["components", ("type", "load-more", 0), "_links", "next"],
+                              creator=self.create_page_item)
+        self._add_data_parser("https://api.regiogroei.cloud/page/program", json=True,
+                              name="Seasons for show parsers",
+                              parser=["components", ("type", "episode-list", 0), "seasons"],
+                              creator=self.create_season_item)
+
+        # Additional pages of an episode list (API v10.0+ 'load-more' components)
+        self._add_data_parser(r"https://api.regiogroei.cloud/page/[^/]+/component/", json=True,
+                              match_type=ParserData.MatchRegex,
+                              name="Additional videos for show parsers",
+                              parser=["components", ("type", "episode-list", 0), "items"],
+                              creator=self.create_video_item)
+        self._add_data_parser(r"https://api.regiogroei.cloud/page/[^/]+/component/", json=True,
+                              match_type=ParserData.MatchRegex,
+                              name="Additional pages for show parsers",
+                              parser=["components", ("type", "load-more", 0), "_links", "next"],
+                              creator=self.create_page_item)
 
         self._add_data_parser("*", updater=self.update_video_item)
 
@@ -257,6 +280,52 @@ class Channel(chn_class.Channel):
 
         return item
 
+    def create_page_item(self, result_set):
+        """ Creates a MediaItem of type 'page' using the result_set from the regex.
+
+        :param dict result_set: The '_links.next' object of a 'load-more' component.
+
+        :return: A new MediaItem of type 'page'.
+        :rtype: MediaItem|None
+
+        """
+
+        Logger.trace(result_set)
+        href = result_set.get("href")
+        if not href:
+            return None
+
+        page = re.search(r"pageNumber=(\d+)", href)
+        title = page.group(1) if page else LanguageHelper.get_localized_string(LanguageHelper.MorePages)
+        url = "{}{}".format(self.baseUrl, href)
+
+        item = FolderItem(title, url, content_type=contenttype.EPISODES, media_type=mediatype.PAGE)
+        item.HttpHeaders = self.httpHeaders
+        return item
+
+    def create_season_item(self, result_set):
+        """ Creates a MediaItem of type 'season' using the result_set from the regex.
+
+        API v10.0+ only returns the episodes of the selected (latest) season, the other
+        seasons are links to their own episode lists.
+
+        :param dict result_set: A 'seasons' object of an 'episode-list' component.
+
+        :return: A new MediaItem of type 'season'.
+        :rtype: MediaItem|None
+
+        """
+
+        Logger.trace(result_set)
+        if result_set.get("isSelected") or not result_set.get("href"):
+            return None
+
+        url = "{}{}".format(self.baseUrl, result_set["href"])
+        item = FolderItem(result_set["name"], url, content_type=contenttype.EPISODES,
+                          media_type=mediatype.SEASON)
+        item.HttpHeaders = self.httpHeaders
+        return item
+
     def create_epg_item(self, result_set):
         item = self.create_video_item(result_set, epg_item=True)
         return item
@@ -348,13 +417,14 @@ class Channel(chn_class.Channel):
         # extract the source_id:
         json_data = JsonHelper(data)
         source_id = None
-        for c in json_data.get_value("components"):
+        for c in json_data.get_value("components", fallback=None) or []:
             if c["type"] == "tv-detail-header":
                 source_id = c["sourceId"]
                 break
 
         if not source_id:
             Logger.error("Unable to extract source_id")
+            return item
 
         if self.channelCode in ("rtvdrenthe", ):
             # Some channels do not require the sourceid_string prefix.
@@ -393,4 +463,10 @@ class Channel(chn_class.Channel):
         return item
 
     def _get_thumb(self, thumb):
-        return thumb.replace("[format]", "1104x620").replace("[ext]", "jpg")
+        if not thumb:
+            return thumb
+
+        # API v10.0+ uses '?width=[width]&height=[height]&aspect_ratio=[aspect_ratio]', older ones
+        # use '/[format]/...[ext]'.
+        return thumb.replace("[format]", "1104x620").replace("[ext]", "jpg") \
+            .replace("[width]", "1104").replace("[height]", "620").replace("[aspect_ratio]", "1104:620")

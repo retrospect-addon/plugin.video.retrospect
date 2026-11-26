@@ -61,7 +61,15 @@ class TestRegioGroei(ChannelTest):
     def test_zeeland_video_listing(self):
         self._switch_channel("omroepzeeland")
         url = "https://api.regiogroei.cloud/page/program/370215252"
-        self._test_folder_url(url, expected_results=5)
+        # API v10.0 only lists the latest season's episodes, the others are season folders.
+        items = self._test_folder_url(url, expected_results=4)
+        self.assertTrue(any(i.media_type == "season" for i in items), "No season items found")
+
+    def test_zeeland_video_listing_season(self):
+        self._switch_channel("omroepzeeland")
+        items = self.channel.process_folder_list(self._get_media_item("https://api.regiogroei.cloud/page/program/370215252"))
+        season = [i for i in items if i.media_type == "season" and i.name == "2024"][0]
+        self._test_folder_url(season.url, expected_results=5, headers=season.HttpHeaders)
 
     def test_zeeland_video(self):
         self._switch_channel("omroepzeeland")
@@ -218,7 +226,15 @@ class TestRegioGroei(ChannelTest):
     def test_omroepgelderland_news_listing(self):
         self._switch_channel("omroepgelderland")
         url = "https://api.regiogroei.cloud/page/program/31"
-        self._test_folder_url(url, expected_results=20)
+        # API v10.0 returns 10 episodes per page plus a 'load-more' page item.
+        items = self._test_folder_url(url, expected_results=10)
+        self.assertTrue(any(i.media_type == "page" for i in items), "No 'load-more' page item found")
+
+    def test_omroepgelderland_news_listing_page_2(self):
+        self._switch_channel("omroepgelderland")
+        items = self.channel.process_folder_list(self._get_media_item("https://api.regiogroei.cloud/page/program/31"))
+        page = [i for i in items if i.media_type == "page"][0]
+        self._test_folder_url(page.url, expected_results=10, headers=page.HttpHeaders)
 
     def test_omroepgelderland_video(self):
         self._switch_channel("omroepgelderland")
