@@ -873,11 +873,11 @@ class Channel(chn_class.Channel):
 
     def update_single_video(self, item: MediaItem) -> MediaItem:
         data = UriHandler.open(item.url)
-        whatson_info = Regexer.do_regex(r'"productId"\W+"([^"]+)"', data)
+        whatson_info = Regexer.do_regex(r'productId\W+"([^"\\]+)', data)
         if not whatson_info:
             # Retry as with a login it might fail
             data = UriHandler.open(item.url)
-            whatson_info = Regexer.do_regex(r'"productId"\W+"([^"]+)"', data)
+            whatson_info = Regexer.do_regex(r'productId\W+"([^"\\]+)', data)
 
         whatson_id = whatson_info[0]
         return self.__update_video_item(item, whatson_id)
