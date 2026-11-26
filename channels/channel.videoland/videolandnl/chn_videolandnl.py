@@ -283,18 +283,22 @@ class Channel(chn_class.Channel):
         # This postprocessing function fixes date ordering by setting the date of an episode, if it has no date, to the date of the previous episode.
         # This is probably not the real broadcast date, but it at least fixes the order. This is done for numbered
         # seasons as well, as the date ordering issue is unrelated to the naming.
-        if (len(items) <= 1
-                or data.json.get("featureId") != "videos_by_season_by_program"
+        if (data.json.get("featureId") != "videos_by_season_by_program"
                 or not all(item.media_type == mediatype.EPISODE for item in items)):
             return items
 
         # Videoland prefixes episode titles with their number, which results in names like
-        # "1. Aflevering 1". Optionally strip the redundant prefix.
+        # "1. Aflevering 1". Optionally strip the redundant prefix. This is also done for
+        # seasons with a single episode.
         if self._get_setting("clean_episode_names", "false") == "true":
             for item in items:
                 match = re.search(r"^(\d+)\.\s+([Aa]flevering (\d+))$", item.name)
                 if match and int(match.group(1)) == int(match.group(3)):
                     item.name = match.group(2)
+
+        # Numbering and date filling only make sense for multiple episodes.
+        if len(items) <= 1:
+            return items
 
         if not any(re.search(r"^[Aa]flevering \d+|^\d+\.", item.name) for item in items):
             for index, item in enumerate(items, start=1):
