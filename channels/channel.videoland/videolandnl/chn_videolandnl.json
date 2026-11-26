@@ -38,6 +38,11 @@
     },
     {
       "order": 5,
+      "value": "type=\"bool\" default=\"false\" label=\"30130\"",
+      "id": "clean_episode_names"
+    },
+    {
+      "order": 6,
       "id": "re-authenticate",
       "value": "label=\"30129\" type=\"action\" action=\"RunScript(plugin.video.retrospect, 0, ?channel=channel.videoland.videolandnl&amp;action=execute&amp;command=log_off)\" option=\"close\""
     }
